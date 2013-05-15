@@ -25,10 +25,10 @@ ArmDrive::ArmDrive( const ros::NodeHandle& nh, string pan_motor_serial, string t
     all_motors_accel( all_motors_acceleration ),
     pan_init( false ),
     tilt_init( false ),
-    cable_init( false ),
-    pan_at_max( false ),
+    cable_init( false )/*,
+    pan_at_max( false ),       //unused, undefined, un-uncommented
     tilt_at_max( false ),
-    cable_at_max( false )
+    cable_at_max( false )*/
 {
     pan_motor_pub = nnh.advertise<phidgets::stepper_params_better>(string("/stepper/").append(pan_motor_serial),10);
     tilt_motor_pub = nnh.advertise<phidgets::stepper_params_better>(string("/stepper/").append(tilt_motor_serial),10);

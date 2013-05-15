@@ -3,3 +3,7 @@ bin
 build
 msg_gen
 src/sample_acquisition
+.cproject
+.project
+.pydevproject
+cmake_install.cmake
