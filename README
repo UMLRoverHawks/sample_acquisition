@@ -1,0 +1,53 @@
+sample_acquisition ROS package
+
+System requirements:
+(1) modified phidgets ROS package
+(2) phidgets software - Follow steps 3.1-3.5 at www.ros.org/wiki/phidgets except step 3.3. Use "$ sudo apt-get install audio_common" instead.
+
+
+Assumptions:
+
+(1) Angle ranges in the src/arm_restrictor.cpp file's constructor correspond to actual physical boundaries of the robot. You're going to hate
+    me for this, but I hard coded it to get it to work. To adjust these ranges, change the source and recompile. It was too much of a bitch
+    to get yaml-cpp working.
+(2) Arm starts in the designated location, given by the ROS parameters in sample_acquisition.launch.
+    
+
+Launch files:
+
+steppers.launch - Starts the Phidgets ROS node for each motor and motor controller.
+
+keyboard_drive.launch - Calls sample_acquisition.launch and launches the keyboard_drive ROS node.
+                      - wasd moves the pan and tilt, f/g actuates the gripper, space switches between velocity and position mode for testing.
+
+sample_acquisition.launch - Calls steppers.launch and launches the sample_acquisition ROS node.
+                          - Sets up parameters used for the motors and for arm movement.
+                          - These parameters include max, min, and inital position of each motor, given in radians.
+
+
+ROS nodes:
+
+sample_aqcuisition - Takes ArmMovement message and converts it to a lower level motor command for each of the 3 motors.
+                   - Checks boundaries given by yaml file, manages power consumption, outputs current status.
+
+keyboard_drive - Simple keyboard input program that converts the input into an ArmMovement ROS message.
+
+
+ROS messages:
+
+ArmMovement.msg - Accepted by sample_acquisition ROS node on /arm/movement to move the arm.
+                - Output by sample_acquisition ROS node on /arm/status to relate current status.
+
+
+Other notes:
+
+(1) There is weirdness with the intialization phase. Trust me, I'm a doctor. Well, at least I have a BS now...
+    
+(2) Parameters that are measured in radians are based on 0 being parallel to the ground and parallel with the FRONT
+    of the robot. For the tilt, PI/4 would be 45 degrees up from horizontal. For the pan, -PI/2 would be pointing
+    straight out in front of the robot. PI/2 would be pointing straight back, parallel with the side of the robot.
+    For the cable drive, 0 is closed. Open depends on the ratio between the 2 pulleys in the cable drive. It is how much
+    the motor must actually spin from 0 to fully open the gripper. 
+
+(3) Things are hardcoded that shouldn't be. See arm_restrictor.cpp and .h. It is explained in the comments.
+

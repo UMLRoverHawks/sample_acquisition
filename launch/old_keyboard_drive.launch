@@ -1,0 +1,66 @@
+<launch>
+
+    <arg name="pan_motor_serial" value="322175"/>
+    <arg name="tilt_motor_serial" value="322191"/>
+    <arg name="cable_motor_serial" value="322494"/>
+
+    <arg name="pan_motor_vel" value="50000.0"/>
+    <arg name="tilt_motor_vel" value="50000.0"/>
+    <arg name="cable_motor_vel" value="50000.0"/>
+
+    <arg name="pan_motor_step" value="25"/>
+    <arg name="tilt_motor_step" value="25"/>
+    <arg name="cable_motor_step" value="25"/>
+
+    <arg name="pan_motor_timeout" value="0.3"/>
+    <arg name="tilt_motor_timeout" value="0.3"/>
+    <arg name="cable_motor_timeout" value="0.3"/>
+
+    <arg name="all_motors_accel" value="1000.0"/>
+
+    <arg name="pan_motor_h_current" value="0.3"/>
+    <arg name="pan_motor_m_current" value="3.0"/>
+
+    <arg name="tilt_motor_h_current" value="1.0"/>
+    <arg name="tilt_motor_m_current" value="3.0"/>
+
+    <arg name="cable_motor_h_current" value="0.3"/>
+    <arg name="cable_motor_m_current" value="3.0"/>
+
+
+    <include file="$(find sample_acquisition)/launch/steppers.launch">
+        <arg name="pan_motor_serial" value="$(arg pan_motor_serial)"/>
+        <arg name="tilt_motor_serial" value="$(arg tilt_motor_serial)"/>
+        <arg name="cable_motor_serial" value="$(arg cable_motor_serial)"/>
+        
+        <arg name="pan_motor_h_current" value="$(arg pan_motor_h_current)"/>
+        <arg name="pan_motor_m_current" value="$(arg pan_motor_m_current)"/>
+
+        <arg name="tilt_motor_h_current" value="$(arg tilt_motor_h_current)"/>
+        <arg name="tilt_motor_m_current" value="$(arg tilt_motor_m_current)"/>
+
+        <arg name="cable_motor_h_current" value="$(arg cable_motor_h_current)"/>
+        <arg name="cable_motor_m_current" value="$(arg cable_motor_m_current)"/>
+    </include>
+
+    <node pkg="sample_acquisition" type="keyboard_drive" name="keyboard_drive" output="screen">
+        <param name="pan_motor_serial" value="$(arg pan_motor_serial)"/>
+        <param name="tilt_motor_serial" value="$(arg tilt_motor_serial)"/>
+        <param name="cable_motor_serial" value="$(arg cable_motor_serial)"/>
+
+        <param name="pan_motor_vel" value="$(arg pan_motor_vel)"/>
+        <param name="tilt_motor_vel" value="$(arg tilt_motor_vel)"/>
+        <param name="cable_motor_vel" value="$(arg cable_motor_vel)"/>
+
+        <param name="pan_motor_step" value="$(arg pan_motor_step)"/>
+        <param name="tilt_motor_step" value="$(arg tilt_motor_step)"/>
+        <param name="cable_motor_step" value="$(arg cable_motor_step)"/>
+
+        <param name="all_motors_accel" value="$(arg all_motors_accel)"/>
+
+        <param name="pan_motor_timeout" value="$(arg pan_motor_timeout)"/>
+        <param name="tilt_motor_timeout" value="$(arg tilt_motor_timeout)"/>
+        <param name="cable_motor_timeout" value="$(arg cable_motor_timeout)"/>
+    </node>    
+
+</launch>

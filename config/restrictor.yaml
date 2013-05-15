@@ -1,0 +1,37 @@
+# Define step function ranges for the restrictor class.
+
+# pan defines acceptible tilt ranges given current pan angle
+# tilt defines acceptible pan ranges given current tilt angle
+
+# These ranges should be given in order. In the pan section,
+# if the current pan angle is in [pan_min1,pan_min2], the range
+# allowed for the tilt will be [tilt_min1,tilt_max1].
+
+# All values are in radians.
+pan:
+    min: -1.570796 # -pi/2
+    max: 1.570796  # pi/2
+    ranges:
+        - pan_min: -1.570796    # -pi/2    # FOR EXAMPLE:
+          tilt_min: 0.0         # 0        # If pan is currently [-1.570796,0.0], tilt 
+          tilt_max: 0.174532925 # pi/18    # will be capped to [0.0,0.174532925].
+        - pan_min: 0.0          # 0
+          tilt_min: -0.8726646  # -5pi/18  # If pan is currently [0.0,1.570796], tilt
+          tilt_max: 0.174532925 # pi/18    # will be capped to [tilt_min,tilt_max].
+tilt:
+    min: -0.8726646  # -5pi/18
+    max: 0.174532925 # pi/18
+    ranges:
+        - tilt_min: -0.8726646 # -5pi/18
+          pan_min: 0.0         # 0
+          pan_max: 1.570796    # pi/2
+        - tilt_min: 0.0        # 0
+          pan_min: -1.570796   # -pi/2
+          pan_max: 1.570796    # pi/2
+# No step function is necessary for the cable drive, just min and max angles.
+cable:
+    min: 0.0      # 0
+    max: 2.094395 # 2pi/3
+# Don't change this unless you know what you're doing.
+# Used to convert angle ranges into motor position ranges.
+motor_clicks_per_radian: 509.2958178 # 1600 motor clicks = pi radians.

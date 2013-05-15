@@ -1,0 +1,34 @@
+<launch>
+
+    <arg name="pan_motor_serial" default="322494"/>
+    <arg name="tilt_motor_serial" default="322191"/>
+    <arg name="cable_motor_serial" default="322175"/>
+
+    <arg name="pan_motor_h_current" default="0.1"/>
+    <arg name="pan_motor_m_current" default="2.0"/>
+
+    <arg name="tilt_motor_h_current" default="0.1"/>
+    <arg name="tilt_motor_m_current" default="2.0"/>
+
+    <arg name="cable_motor_h_current" default="0.1"/>
+    <arg name="cable_motor_m_current" default="2.0"/>
+
+    <node name="pan_motor" type="stepper" pkg="phidgets" output="screen">
+        <param name="serial" value="$(arg pan_motor_serial)"/>
+        <param name="holding_current" value="$(arg pan_motor_h_current)"/>
+        <param name="moving_current" value="$(arg pan_motor_m_current)"/>
+    </node>
+
+    <node name="tilt_motor" type="stepper" pkg="phidgets" output="screen">
+        <param name="serial" value="$(arg tilt_motor_serial)"/>
+        <param name="holding_current" value="$(arg tilt_motor_h_current)"/>
+        <param name="moving_current" value="$(arg tilt_motor_m_current)"/>
+    </node>
+
+    <node name="cable_motor" type="stepper" pkg="phidgets" output="screen">
+        <param name="serial" value="$(arg cable_motor_serial)"/>
+        <param name="holding_current" value="$(arg cable_motor_h_current)"/>
+        <param name="moving_current" value="$(arg cable_motor_m_current)"/>
+    </node>
+
+</launch>

@@ -1,0 +1,9 @@
+<launch>
+    <arg name="position_step" value="0.1"/>
+
+    <node pkg="sample_acquisition" type="keyboard_drive" name="keyboard_drive" output="screen">
+        <param name="position_step" value="$(arg position_step)"/>
+    </node>
+    <include file="$(find sample_acquisition)/launch/sample_acquisition.launch"/>
+
+</launch>

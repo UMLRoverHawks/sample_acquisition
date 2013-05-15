@@ -1,0 +1,15 @@
+<package>
+  <description brief="sample_acquisition">
+
+    sample_acquisition
+
+  </description>
+  <author>mlunderville</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/sample_acquisition</url>
+    <depend package="roscpp"/>
+    <depend package="phidgets"/>
+</package>
+
+
