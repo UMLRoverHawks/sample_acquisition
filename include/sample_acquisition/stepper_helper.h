@@ -16,7 +16,7 @@ class StepperHelper
 {
 public:
     // Constructor. Initializes all variables.
-    StepperHelper( const ros::NodeHandle&, string serial, float motor_safe_velocity, float motor_max_velocity, float all_motors_acceleration );
+    StepperHelper( const ros::NodeHandle&, string description, string serial, float motor_safe_velocity, float motor_max_velocity, float all_motors_acceleration );
 
     // Callbacks
     void callback( const phidgets::stepper_paramsConstPtr & );
@@ -72,7 +72,6 @@ private:
     // Acceleration to be used by all motors.
     float all_motors_accel;
 
-    // Last mode used.
-    string mode;
+    string desc;
 };
 #endif

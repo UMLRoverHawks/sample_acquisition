@@ -7,12 +7,13 @@
 #include <cmath>
 
 // Implementation of ArmDrive class member functions
-StepperHelper::StepperHelper( const ros::NodeHandle& nh, string serial,
+StepperHelper::StepperHelper( const ros::NodeHandle& nh, string description, string serial,
     float motor_safe_velocity, float motor_max_velocity, float all_motors_acceleration) :
     nnh(nh),
     all_motors_accel( all_motors_acceleration ),
     motor_safe_vel(motor_safe_velocity),
-    motor_max_vel(motor_max_velocity)
+    motor_max_vel(motor_max_velocity),
+    desc(description)
 {
     motor_pub = nnh.advertise<phidgets::stepper_params>(string("/stepper/").append(serial),10);
     motor_sub = nnh.subscribe<phidgets::stepper_params>(string("/phidgets/stepper/").append(serial),10,boost::bind(&StepperHelper::callback,this,_1));
@@ -23,7 +24,7 @@ void StepperHelper::callback( const phidgets::stepper_paramsConstPtr& data )
 {
     motor_pos = data->position;
 
-    ROS_INFO("i Motor stuff esta ! : %lld", motor_pos);
+    //ROS_INFO("i Motor stuff esta ! : %lld", motor_pos);
 }
 
 void StepperHelper::setMotor( bool engaged )
@@ -35,13 +36,14 @@ void StepperHelper::setMotor( bool engaged )
     msg.acceleration = all_motors_accel;
     msg.position = motor_target;
 
-    ROS_INFO("Pos: %lld, target: %lld", motor_pos, motor_target);
+    ROS_INFO("%s - Pos: %lld, target: %lld, vel: %d, accel: %d", desc.c_str(), motor_pos, motor_target, all_motors_accel, motor_vel);
 
     motor_pub.publish(msg);
 }
 
 void StepperHelper::setTarget(long long target)
 {
+
   motor_target = target;
 }
 

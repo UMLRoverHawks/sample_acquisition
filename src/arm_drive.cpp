@@ -25,8 +25,9 @@ ArmDrive::ArmDrive( const ros::NodeHandle& nh, string pan_motor_serial, string t
   string serials[3] = {pan_motor_serial, tilt_motor_serial, cable_motor_serial};
   float safes[3] = {pan_motor_safe_velocity, tilt_motor_safe_velocity, cable_motor_safe_velocity};
   float maxes[3] = {pan_motor_max_velocity, tilt_motor_max_velocity, cable_motor_max_velocity};
+  string descs[3] = {"pan", "tilt", "gripper"};
   for(int i=PAN_JOINT; i<=CABLE_JOINT; i++)
-    steppers[i] = new StepperHelper(nnh, serials[i], safes[i], maxes[i], all_motors_accel);
+    steppers[i] = new StepperHelper(nnh, descs[i], serials[i], safes[i], maxes[i], all_motors_accel);
   arm_movement_sub = nnh.subscribe<sample_acquisition::ArmMovement>("/arm/movement",10,boost::bind(&ArmDrive::movementCallback,this,_1));
 }
 
