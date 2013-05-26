@@ -5,13 +5,13 @@
     <arg name="cable_motor_serial" default="322175"/>
 
     <arg name="pan_motor_h_current" default="0.1"/>
-    <arg name="pan_motor_m_current" default="2.0"/>
+    <arg name="pan_motor_m_current" default="1.0"/>
 
     <arg name="tilt_motor_h_current" default="0.1"/>
     <arg name="tilt_motor_m_current" default="2.0"/>
 
     <arg name="cable_motor_h_current" default="0.1"/>
-    <arg name="cable_motor_m_current" default="2.0"/>
+    <arg name="cable_motor_m_current" default="2.5"/>
 
     <node name="pan_motor" type="stepper" pkg="phidgets" output="screen">
         <param name="serial" value="$(arg pan_motor_serial)"/>
