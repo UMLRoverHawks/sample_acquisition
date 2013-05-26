@@ -26,7 +26,8 @@
 
     <arg name="restrictor_file" value="$(find sample_acquisition/config/restrictor.yaml"/> <!-- Yaml file for restricting arm movement -->
     <arg name="velocity_mode_time_step" value="0.1"/>
-    <arg name="gear_ratio" value="6.0"/>
+    <arg name="tilt_gear_ratio" value="9.0"/>
+    <arg name="non_tilt_gear_ratio" value="3.0" />
 
 
     <!-- Phidgets node for each motor -->
@@ -61,7 +62,8 @@
 
         <param name="restrictor_file" value="$(arg restrictor_file)"/>
         <param name="velocity_mode_time_step" value="$(arg velocity_mode_time_step)"/>
-        <param name="gear_ratio" value="$(arg gear_ratio)"/>
+        <param name="non_tilt_gear_ratio" value="$(arg non_tilt_gear_ratio)"/>
+	<param name="tilt_gear_ratio" value="$(arg tilt_gear_ratio)" />
     </node>    
 
 </launch>

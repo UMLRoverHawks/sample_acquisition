@@ -10,12 +10,13 @@ ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long pan_init, long long
 {
     // Initial positions as angle measures.
     double pan_initial, tilt_initial, cable_initial;
-    double gear_ratio;
+    double gear_ratio_tilt, gear_ratio_non_tilt;
 
     nh.getParam("/pan_motor_initial_angle",pan_initial);
     nh.getParam("/tilt_motor_initial_angle",tilt_initial);
     nh.getParam("/cable_motor_initial_angle",cable_initial);
-    nh.getParam("/sample_acquisition/gear_ratio",gear_ratio);
+    nh.getParam("/sample_acquisition/tilt_gear_ratio",gear_ratio_tilt);
+    nh.getParam("/sample_acquisition/non_tilt_gear_ratio",gear_ratio_non_tilt);
 
     // THIS IS WHERE THE RANGES AND STEP FUNCTIONS ARE SET UP.
     // Hardcoded values... BAD BAD BAD.
@@ -30,18 +31,18 @@ ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long pan_init, long long
     double motor_clicks_per_radian = 509.2958178;
 
     // Convert these max and mins to motor positions.
-    pan_min = pan_init - ( (long long)( (pan_maximum-pan_initial) * motor_clicks_per_radian * gear_ratio ) ); // These seem opposite because pan motor spins
-    pan_max = pan_init + ( (long long)( (pan_initial-pan_minimum) * motor_clicks_per_radian * gear_ratio ) ); // wrong way to make the angles match motor position
-    tilt_max = tilt_init + ( (long long)( (tilt_maximum-tilt_initial) * motor_clicks_per_radian * gear_ratio ) );
-    tilt_min = tilt_init - ( (long long)( (tilt_initial-tilt_minimum) * motor_clicks_per_radian * gear_ratio ) );
-    cable_max = cable_init + ( (long long)( (cable_maximum-cable_initial) * motor_clicks_per_radian * gear_ratio ) );
-    cable_min = cable_init - ( (long long)( (cable_initial-cable_minimum) * motor_clicks_per_radian * gear_ratio ) );   
+    pan_min = pan_init - ( (long long)( (pan_maximum-pan_initial) * motor_clicks_per_radian * gear_ratio_non_tilt ) ); // These seem opposite because pan motor spins
+    pan_max = pan_init + ( (long long)( (pan_initial-pan_minimum) * motor_clicks_per_radian * gear_ratio_non_tilt ) ); // wrong way to make the angles match motor position
+    tilt_max = tilt_init + ( (long long)( (tilt_maximum-tilt_initial) * motor_clicks_per_radian * gear_ratio_tilt ) );
+    tilt_min = tilt_init - ( (long long)( (tilt_initial-tilt_minimum) * motor_clicks_per_radian * gear_ratio_tilt ) );
+    cable_max = cable_init + ( (long long)( (cable_maximum-cable_initial) * motor_clicks_per_radian * gear_ratio_non_tilt ) );
+    cable_min = cable_init - ( (long long)( (cable_initial-cable_minimum) * motor_clicks_per_radian * gear_ratio_non_tilt ) );   
 
     // Code for debugging... has come in handy a few times.
     
     ROS_INFO("Calculated Maxes. pan_max: %lld, pan_min: %lld, pan_init: %lld", pan_max, pan_min, pan_init);
-    ROS_INFO("Calculation. motor_clicks*gear_ratio: %2f", motor_clicks_per_radian*gear_ratio);
-    ROS_INFO("(pan_maximum-pan_initial) * motor_clicks_per_radian * gear_ratio: %2f", (pan_maximum-pan_initial)*motor_clicks_per_radian*gear_ratio);
+    ROS_INFO("Calculation. motor_clicks*gear_ratio: %2f", motor_clicks_per_radian*gear_ratio_non_tilt);
+    ROS_INFO("(pan_maximum-pan_initial) * motor_clicks_per_radian * gear_ratio: %2f", (pan_maximum-pan_initial)*motor_clicks_per_radian*gear_ratio_non_tilt);
     
 
     // Hardcoded values that will be converted to calculated ranges.
@@ -65,11 +66,11 @@ ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long pan_init, long long
 
     // endpoints 1 and last are always min and max. The ones in between need to be calculated as shown below.
     pan_endpoint1 = pan_min; // max angle
-    pan_endpoint2 = pan_min + (long long)((pan_maximum - pan_endpt2) * motor_clicks_per_radian * gear_ratio);
+    pan_endpoint2 = pan_min + (long long)((pan_maximum - pan_endpt2) * motor_clicks_per_radian * gear_ratio_non_tilt);
     pan_endpoint3 = pan_max; // min angle
 
     tilt_endpoint1 = tilt_min;
-    tilt_endpoint2 = tilt_min + (long long)((tilt_endpt2 - tilt_minimum) * motor_clicks_per_radian * gear_ratio);
+    tilt_endpoint2 = tilt_min + (long long)((tilt_endpt2 - tilt_minimum) * motor_clicks_per_radian * gear_ratio_tilt);
     tilt_endpoint3 = tilt_max;
 
     pan_range1_low = pan_endpoint2;
