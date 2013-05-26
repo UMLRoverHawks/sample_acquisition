@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <fcntl.h>
 
+#include "sample_acquisition/stepper_helper.h"
 #include "sample_acquisition/arm_drive.h"
 #include "sample_acquisition/ArmMovement.h"
 
@@ -123,13 +124,13 @@ void output_status( ArmDrive &drive, ros::Publisher &arm_pub )
     bool pan_at_max, tilt_at_max, cable_at_max;
 
     float pan_position = drive.getPanPos( &pan_at_max );
-    float pan_velocity = drive.getPanVel();
+    float pan_velocity = drive.steppers[PAN_JOINT]->getVel();
     
     float tilt_position = drive.getTiltPos( &tilt_at_max );
-    float tilt_velocity = drive.getTiltVel();
+    float tilt_velocity = drive.steppers[TILT_JOINT]->getVel();
 
     float cable_position = drive.getCablePos( &cable_at_max );
-    float cable_velocity = drive.getCableVel();
+    float cable_velocity = drive.steppers[CABLE_JOINT]->getVel();
 
     // Put data into a ROS message.
     sample_acquisition::ArmMovement message;

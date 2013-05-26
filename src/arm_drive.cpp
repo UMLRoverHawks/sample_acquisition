@@ -3,6 +3,7 @@
  */
 
 #include "sample_acquisition/arm_drive.h"
+#include "sample_acquisition/stepper_helper.h"
 #include "sample_acquisition/arm_restrictor.h"
 #include <boost/bind.hpp>
 #include <cmath>
@@ -12,16 +13,7 @@ ArmDrive::ArmDrive( const ros::NodeHandle& nh, string pan_motor_serial, string t
                     float velocity_mode_time_step, float pan_motor_safe_velocity, float tilt_motor_safe_velocity, float cable_motor_safe_velocity,
                     float pan_motor_max_velocity, float tilt_motor_max_velocity, float cable_motor_max_velocity, float all_motors_acceleration) : 
     nnh(nh),
-    pan_motor_target( 0 ),
-    tilt_motor_target( 0 ),
-    cable_motor_target( 0 ),
     vel_mode_time_step( vel_mode_time_step ),
-    pan_motor_safe_vel( pan_motor_safe_velocity ),
-    tilt_motor_safe_vel( tilt_motor_safe_velocity ),
-    cable_motor_safe_vel( cable_motor_safe_velocity ),
-    pan_motor_max_vel( pan_motor_max_velocity ),
-    tilt_motor_max_vel( tilt_motor_max_velocity ),
-    cable_motor_max_vel( cable_motor_max_velocity ),
     all_motors_accel( all_motors_acceleration ),
     pan_init( false ),
     tilt_init( false ),
@@ -30,58 +22,14 @@ ArmDrive::ArmDrive( const ros::NodeHandle& nh, string pan_motor_serial, string t
     tilt_at_max( false ),
     cable_at_max( false )*/
 {
-    pan_motor_pub = nnh.advertise<phidgets::stepper_params_better>(string("/stepper/").append(pan_motor_serial),10);
-    tilt_motor_pub = nnh.advertise<phidgets::stepper_params_better>(string("/stepper/").append(tilt_motor_serial),10);
-    cable_motor_pub = nnh.advertise<phidgets::stepper_params_better>(string("/stepper/").append(cable_motor_serial),10);
-
-    pan_motor_sub = nnh.subscribe<phidgets::stepper_params_better>(string("/phidgets/stepper/").append(pan_motor_serial),10,boost::bind(&ArmDrive::panCallback,this,_1));
-    tilt_motor_sub = nnh.subscribe<phidgets::stepper_params_better>(string("/phidgets/stepper/").append(tilt_motor_serial),10,boost::bind(&ArmDrive::tiltCallback,this,_1));
-    cable_motor_sub = nnh.subscribe<phidgets::stepper_params_better>(string("/phidgets/stepper/").append(cable_motor_serial),10,boost::bind(&ArmDrive::cableCallback,this,_1));
-
-    arm_movement_sub = nnh.subscribe<sample_acquisition::ArmMovement>("/arm/movement",10,boost::bind(&ArmDrive::movementCallback,this,_1));
+  string serials[3] = {pan_motor_serial, tilt_motor_serial, cable_motor_serial};
+  float safes[3] = {pan_motor_safe_velocity, tilt_motor_safe_velocity, cable_motor_safe_velocity};
+  float maxes[3] = {pan_motor_max_velocity, tilt_motor_max_velocity, cable_motor_max_velocity};
+  for(int i=PAN_JOINT; i<=CABLE_JOINT; i++)
+    steppers[i] = new StepperHelper(nnh, serials[i], safes[i], maxes[i], all_motors_accel);
+  arm_movement_sub = nnh.subscribe<sample_acquisition::ArmMovement>("/arm/movement",10,boost::bind(&ArmDrive::movementCallback,this,_1));
 }
 
-
-void ArmDrive::panCallback( const phidgets::stepper_params_betterConstPtr& data )
-{
-    pan_init = true;
-    pan_motor_pos = data->position;
-
-    ROS_INFO("Pan position: %lld", pan_motor_pos);
-
-    /*
-    // Disengage the motor if position=target
-    if (pan_motor_pos == pan_motor_target) {
-        disengagePanMotor();
-    }
-    */
-}
-
-void ArmDrive::tiltCallback( const phidgets::stepper_params_betterConstPtr& data )
-{
-    tilt_init = true;
-    tilt_motor_pos = data->position;
-
-    /*
-    // Disengage the motor if position=target
-    if (tilt_motor_pos == tilt_motor_target) {
-        disengageTiltMotor();
-    }
-    */
-}
-
-void ArmDrive::cableCallback( const phidgets::stepper_params_betterConstPtr& data )
-{
-    cable_init = true;
-    cable_motor_pos = data->position;
-
-    /*
-    // Disengage the motor if position=target
-    if (cable_motor_pos == cable_motor_target) {
-        disengageCableMotor();
-    }
-    */
-}
 
 void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& data )
 {
@@ -135,125 +83,55 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
     else if ( input_cable_vel < -1.0 )
         input_cable_vel = -1.0;
 
+    float input_vel[3] = {input_pan_vel, input_tilt_vel, input_cable_vel};
 
     // Update variables for position mode.
     if ( data->position) {
-        pan_motor_target = restrictor->getPanTarget(input_pan_pos, tilt_motor_pos);
-        tilt_motor_target = restrictor->getTiltTarget(input_tilt_pos, pan_motor_pos);
-        cable_motor_target = restrictor->getCableTarget(input_cable_pos);
+        steppers[PAN_JOINT]->setTarget(restrictor->getPanTarget(input_pan_pos, steppers[TILT_JOINT]->getPos()));
+        steppers[TILT_JOINT]->setTarget(restrictor->getTiltTarget(input_tilt_pos, steppers[CABLE_JOINT]->getPos()));
+        steppers[CABLE_JOINT]->setTarget(restrictor->getCableTarget(input_cable_pos));
 
-        pan_motor_vel = pan_motor_safe_vel;
-        tilt_motor_vel = tilt_motor_safe_vel;
-        cable_motor_vel = cable_motor_safe_vel;
+        for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
+          steppers[i]->usePositionVel();
 
         mode = string("position");
     }
 
     // Update variables for velocity mode.
     if ( data->velocity ) {
-        pan_motor_vel =  pan_motor_max_vel * input_pan_vel;
-        tilt_motor_vel = tilt_motor_max_vel * input_tilt_vel;
-        cable_motor_vel = cable_motor_max_vel * input_cable_vel;
+        for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
+          steppers[i]->useVelocityVel(input_vel[i]);
 
-        pan_motor_target = restrictor->getPanTarget( ( (long long)(pan_motor_vel*vel_mode_time_step) ) + pan_motor_pos, tilt_motor_pos );
-        tilt_motor_target = restrictor->getTiltTarget( ( (long long)(tilt_motor_vel*vel_mode_time_step) ) + tilt_motor_pos, cable_motor_pos );
-        cable_motor_target = restrictor->getCableTarget( ( (long long)(cable_motor_vel*vel_mode_time_step) ) + cable_motor_pos );
+        steppers[PAN_JOINT]->setTarget(restrictor->getPanTarget( ( (long long)(steppers[PAN_JOINT]->getVel()*vel_mode_time_step) ) + steppers[PAN_JOINT]->getPos(), steppers[TILT_JOINT]->getPos() ));
+        steppers[TILT_JOINT]->setTarget(restrictor->getTiltTarget( ( (long long)(steppers[TILT_JOINT]->getVel()*vel_mode_time_step) ) + steppers[TILT_JOINT]->getVel(), steppers[CABLE_JOINT]->getPos() ));
+        steppers[CABLE_JOINT]->setTarget(restrictor->getCableTarget( ( (long long)(steppers[CABLE_JOINT]->getVel()*vel_mode_time_step) ) + steppers[CABLE_JOINT]->getPos() ));
 
         mode = string("velocity");
     }
 
     // Call the set functions that move the motors
-    setPanMotor( true, false, false );
-    setTiltMotor( true, false, false );
-    setCableMotor( true, false, false );
-
+    for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
+      steppers[i]->setMotor(true);
 }
 
 // Engage == false && reset_position == true => Asks driver to report back current position without moving the motors.
 bool ArmDrive::initializeMotors()
 {
-    // Call the set functions to request position without moving the motors.
-    setPanMotor( false, true, false );
-    setTiltMotor( false, true, false );
-    setCableMotor( false, true, false );
-
     // Do this continually for 1.0 seconds at 10Hz... just to make sure the motors have initialized and reported their position.
     if ( pan_init && tilt_init && cable_init ) {
-        pan_motor_target = pan_motor_pos;
-        tilt_motor_target = tilt_motor_pos;
-        cable_motor_target = cable_motor_target;
+        steppers[PAN_JOINT]->setTarget(steppers[PAN_JOINT]->getPos());
+        steppers[TILT_JOINT]->setTarget(steppers[TILT_JOINT]->getPos());
+        steppers[CABLE_JOINT]->setTarget(steppers[CABLE_JOINT]->getPos());
 
-        ROS_INFO("Initialization Phase. pan_pos: %lld, tilt_pos: %lld, cable_pos: %lld", pan_motor_pos, tilt_motor_pos, cable_motor_pos);
+        ROS_INFO("Initialization Phase. pan_pos: %lld, tilt_pos: %lld, cable_pos: %lld", steppers[PAN_JOINT]->getPos(), steppers[TILT_JOINT]->getPos(), steppers[CABLE_JOINT]->getPos());
 
         // This must go here, because it requires initial motor positions to have been read.
-        restrictor = new ArmRestrictor( nnh, pan_motor_pos, tilt_motor_pos, cable_motor_pos );
+        restrictor = new ArmRestrictor( nnh, steppers[PAN_JOINT]->getPos(), steppers[TILT_JOINT]->getPos(), steppers[CABLE_JOINT]->getPos() );
 
         return true;
     }
     
     return false;
-}
-
-void ArmDrive::setPanMotor( bool spin_motor, bool request_position, bool lower_current )
-{
-    phidgets::stepper_params_better msg;
-    
-    msg.spin_motor = spin_motor;
-    msg.request_position = request_position;
-    msg.lower_current = lower_current;
-    msg.velocity = abs(pan_motor_vel);
-    msg.acceleration = all_motors_accel;
-    msg.position = pan_motor_target;
-
-    ROS_INFO("PAN: Pos: %lld, target: %lld", pan_motor_pos, pan_motor_target);
-
-    pan_motor_pub.publish(msg);
-}
-
-void ArmDrive::setTiltMotor( bool spin_motor, bool request_position, bool lower_current )
-{
-    phidgets::stepper_params_better msg;
-    
-    msg.spin_motor = spin_motor;
-    msg.request_position = request_position;
-    msg.lower_current = lower_current;
-    msg.velocity = abs(tilt_motor_vel);
-    msg.acceleration = all_motors_accel;
-    msg.position = tilt_motor_target;
-
-    tilt_motor_pub.publish(msg);
-}
-
-void ArmDrive::setCableMotor( bool spin_motor, bool request_position, bool lower_current )
-{
-    phidgets::stepper_params_better msg;
-    
-    msg.spin_motor = spin_motor;
-    msg.request_position = request_position;
-    msg.lower_current = lower_current;
-    msg.velocity = abs(cable_motor_vel);
-    msg.acceleration = all_motors_accel;
-    msg.position = cable_motor_target;
-
-    cable_motor_pub.publish(msg);
-}
-
-// Lowers the current limit of the pan motor.
-void ArmDrive::disengagePanMotor()
-{
-    setPanMotor(false, false, true);
-}
-
-// Lowers the current limit of the tilt motor.
-void ArmDrive::disengageTiltMotor()
-{
-    setTiltMotor(false, false, true);
-}
-
-// Lowers the current limit of the cable motor.
-void ArmDrive::disengageCableMotor()
-{
-    setCableMotor(false, false, true);
 }
 
 string ArmDrive::getMode()
@@ -264,33 +142,17 @@ string ArmDrive::getMode()
 float ArmDrive::getPanPos( bool *at_max )
 {
     // Use restrictor class to turn pan_motor_pos into float in range of [-1,1]
-    return restrictor->getPanPosition( pan_motor_pos, at_max );
+    return restrictor->getPanPosition( steppers[PAN_JOINT]->getPos(), at_max );
 }
 
 float ArmDrive::getTiltPos( bool *at_max )
 {
     // Use restrictor class to turn tilt_motor_pos into float in range of [-1,1]
-    return restrictor->getTiltPosition( tilt_motor_pos, at_max );
+    return restrictor->getTiltPosition( steppers[TILT_JOINT]->getPos(), at_max );
 }
 
 float ArmDrive::getCablePos( bool *at_max )
 {
     // Use restrictor class to turn cable_motor_pos into float in range of [-1,1]
-    return restrictor->getCablePosition( cable_motor_pos, at_max );
+    return restrictor->getCablePosition( steppers[CABLE_JOINT]->getPos(), at_max );
 }
-
-float ArmDrive::getPanVel()
-{
-    return pan_motor_vel; // Convert to [-1,1]??
-}
-
-float ArmDrive::getTiltVel()
-{
-    return tilt_motor_vel;
-}
-
-float ArmDrive::getCableVel()
-{
-    return cable_motor_vel;
-}
-
