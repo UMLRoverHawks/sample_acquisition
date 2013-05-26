@@ -24,8 +24,8 @@ ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long int pan_init, long 
     double pan_maximum = 1.570796;      // pi/2
     double tilt_minimum = -0.8726646;   // -5pi/18
     double tilt_maximum = 0.174532925;  // pi/18
-    double cable_minimum = -2.094395;   // 0
-    double cable_maximum = 0.0;         // 2pi/3
+    double cable_minimum = 0.0;//-2.094395;   // 0
+    double cable_maximum = 2.094395;//0.0;         // 2pi/3
 
     // Used to convert from angles to motor positions.
     double motor_clicks_per_radian = 509.2958178;
@@ -43,7 +43,14 @@ ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long int pan_init, long 
     ROS_INFO("Calculated Maxes. pan_max: %lld, pan_min: %lld, pan_init: %lld", pan_max, pan_min, pan_init);
     ROS_INFO("Calculation. motor_clicks*gear_ratio: %2f", motor_clicks_per_radian*gear_ratio_non_tilt);
     ROS_INFO("(pan_maximum-pan_initial) * motor_clicks_per_radian * gear_ratio: %2f", (pan_maximum-pan_initial)*motor_clicks_per_radian*gear_ratio_non_tilt);
-    
+
+    ROS_INFO("Calculated Maxes. tilt_max: %lld, tilt_min: %lld, tilt_init: %lld", tilt_max, tilt_min, tilt_init);
+    ROS_INFO("Calculation. motor_clicks*gear_ratio: %2f", motor_clicks_per_radian*gear_ratio_tilt);
+    ROS_INFO("(tilt_maximum-tilt_initial) * motor_clicks_per_radian * gear_ratio: %2f", (tilt_maximum-tilt_initial)*motor_clicks_per_radian*gear_ratio_tilt);
+ 
+    ROS_INFO("Calculated Maxes. cable_max: %lld, cable_min: %lld, cable_init: %lld", cable_max, cable_min, cable_init);
+    ROS_INFO("Calculation. motor_clicks*gear_ratio: %2f", motor_clicks_per_radian*gear_ratio_non_tilt);
+    ROS_INFO("(pan_maximum-pan_initial) * motor_clicks_per_radian * gear_ratio: %2f", (cable_maximum-cable_initial)*motor_clicks_per_radian*gear_ratio_non_tilt);  
 
     // Hardcoded values that will be converted to calculated ranges.
     double pan_endpt1 = pan_maximum; // min motor pos = max angle

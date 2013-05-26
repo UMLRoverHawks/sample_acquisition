@@ -20,6 +20,10 @@ StepperHelper::StepperHelper( const ros::NodeHandle& nh, string description, str
 {
     motor_pub = nnh.advertise<phidgets::stepper_params>(string("/stepper/").append(serial),10);
     motor_sub = nnh.subscribe<phidgets::stepper_params>(string("/phidgets/stepper/").append(serial),10,boost::bind(&StepperHelper::callback,this,_1));
+    phidgets::stepper_params p;
+    p.position = 0;
+    p.reset_position = true;
+    motor_pub.publish(p);
 }
 
 bool StepperHelper::isInitialized()

@@ -104,7 +104,6 @@ bool run( ros::Publisher &pub )
         pub.publish( msg );
     }
 
-    usleep(10);
     return true;
 }
 

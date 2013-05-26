@@ -5,19 +5,19 @@
     <arg name="pan_motor_serial" default="322191"/>
     <arg name="cable_motor_serial" default="322175"/>
 
-    <arg name="pan_motor_safe_vel" value="3000.0"/> <!-- Vel used in position mode -->
-    <arg name="pan_motor_max_vel" value="10000.0"/> <!-- Max vel allowed in velocity mode -->
+    <arg name="pan_motor_safe_vel" value="20000.0"/> <!-- Vel used in position mode -->
+    <arg name="pan_motor_max_vel" value="20000.0"/> <!-- Max vel allowed in velocity mode -->
     <param name="pan_motor_initial_angle" value="0.0"/> <!-- 0.0 --> <!-- Initial angle must be within range above -->
 
-    <arg name="tilt_motor_safe_vel" value="3000.0"/> <!-- Vel used in position mode -->
-    <arg name="tilt_motor_max_vel" value="10000.0"/> <!-- Max vel allowed in velocity mode -->
+    <arg name="tilt_motor_safe_vel" value="20000.0"/> <!-- Vel used in position mode -->
+    <arg name="tilt_motor_max_vel" value="20000.0"/> <!-- Max vel allowed in velocity mode -->
     <param name="tilt_motor_initial_angle" value="0.0"/> <!-- 0.0 --> <!-- Initial angle must be within range above -->
 
-    <arg name="cable_motor_safe_vel" value="3000.0"/> <!-- Vel used in position mode -->
-    <arg name="cable_motor_max_vel" value="10000.0"/> <!-- Max vel allowed in velocity mode -->
+    <arg name="cable_motor_safe_vel" value="20000.0"/> <!-- Vel used in position mode -->
+    <arg name="cable_motor_max_vel" value="20000.0"/> <!-- Max vel allowed in velocity mode -->
     <param name="cable_motor_initial_angle" value="0.0"/> <!-- 0.0 --> <!-- Initial angle must be within range above -->
 
-    <arg name="all_motors_accel" value="1000.0"/> <!-- Constant acceleration used by all motors. If set too high, motors will slip. -->
+    <arg name="all_motors_accel" value="2000.0"/> <!-- Constant acceleration used by all motors. If set too high, motors will slip. -->
 
     <arg name="restrictor_file" value="$(find sample_acquisition/config/restrictor.yaml"/> <!-- Yaml file for restricting arm movement -->
     <arg name="velocity_mode_time_step" value="0.1"/>
