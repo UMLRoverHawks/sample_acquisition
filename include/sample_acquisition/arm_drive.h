@@ -6,11 +6,19 @@
 #define _ARM_DRIVE_H
 
 #include "ros/ros.h"
-#include "phidgets/stepper_params_better.h"
+#include "phidgets/stepper_params.h"
 #include "sample_acquisition/arm_restrictor.h"
 #include "sample_acquisition/ArmMovement.h"
+#include "sample_acquisition/stepper_helper.h"
 
 using namespace std;
+
+enum JOINT
+{
+  PAN_JOINT=0,
+  TILT_JOINT=1,
+  CABLE_JOINT=2
+};
 
 // Class declaration
 class ArmDrive
@@ -22,76 +30,27 @@ public:
                 float pan_motor_max_velocity, float tilt_motor_max_velocity, float cable_motor_max_velocity, float all_motors_acceleration );
 
     // Callbacks
-    void panCallback( const phidgets::stepper_params_betterConstPtr & );
-    void tiltCallback( const phidgets::stepper_params_betterConstPtr & );
-    void cableCallback( const phidgets::stepper_params_betterConstPtr & );
     void movementCallback( const sample_acquisition::ArmMovementConstPtr & );
 
     // Output to the driver
     bool initializeMotors();
-    void setPanMotor( bool, bool, bool );
-    void setTiltMotor( bool, bool, bool );
-    void setCableMotor( bool, bool, bool );
-
-    // Disengage motor functions
-    void disengagePanMotor();
-    void disengageTiltMotor();
-    void disengageCableMotor();
 
     // Mode getter
     string getMode();
 
-    // Position getters
-    float getPanPos( bool * );
-    float getTiltPos( bool * );
-    float getCablePos( bool *);
+    StepperHelper *steppers[3];
 
-    // Velocity getters
-    float getPanVel();
-    float getTiltVel();
-    float getCableVel();
+    float getPanPos( bool *at_max );
+    float getTiltPos( bool *at_max );
+    float getCablePos( bool *at_max );
 
 private:
-    // Indicates whether initialization has occured.
-    bool pan_init, tilt_init, cable_init;
-
     // ROS data members.
     ros::NodeHandle nnh;
 
-    ros::Publisher pan_motor_pub;
-    ros::Publisher tilt_motor_pub;
-    ros::Publisher cable_motor_pub;
-
-    ros::Subscriber pan_motor_sub;
-    ros::Subscriber tilt_motor_sub;
-    ros::Subscriber cable_motor_sub;
-
     ros::Subscriber arm_movement_sub;
 
-    // Last position command to be output.
-    long long pan_motor_target;
-    long long tilt_motor_target;
-    long long cable_motor_target;
-
-    // Actual position of the motors.
-    long long pan_motor_pos;
-    long long tilt_motor_pos;
-    long long cable_motor_pos;
-
-    // Last velocity command to be output.
-    float pan_motor_vel;
-    float tilt_motor_vel;
-    float cable_motor_vel;
-
-    // Velocity used in position mode.
-    float pan_motor_safe_vel;
-    float tilt_motor_safe_vel;
-    float cable_motor_safe_vel;
-
-    // Maximum velocities.
-    float pan_motor_max_vel;
-    float tilt_motor_max_vel;
-    float cable_motor_max_vel;
+    bool pan_init, tilt_init, cable_init;
 
     // Acceleration to be used by all motors.
     float all_motors_accel;
