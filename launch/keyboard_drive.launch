@@ -1,5 +1,5 @@
 <launch>
-    <arg name="position_step" value="0.1"/>
+    <arg name="position_step" value="0.01"/>
 
     <node pkg="sample_acquisition" type="keyboard_drive" name="keyboard_drive" output="screen">
         <param name="position_step" value="$(arg position_step)"/>
