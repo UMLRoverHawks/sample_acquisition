@@ -16,42 +16,42 @@ class ArmRestrictor
 {
 public:
     // Constructor. Takes initial position of each motor and the yaml file path.
-    ArmRestrictor( ros::NodeHandle &nh, long long pan_init, long long tilt_init, long long cable_init );
+    ArmRestrictor( ros::NodeHandle &nh, long long int pan_init, long long int tilt_init, long long int cable_init );
 
     // Input desired target [-1,1], output closest feasible target as motor position.
-    long long getPanTarget( float, long long );
-    long long getTiltTarget( float, long long );
-    long long getCableTarget( float );
+    long long int getPanTarget( float, long long int );
+    long long int getTiltTarget( float, long long int );
+    long long int getCableTarget( float );
 
     // Input desired target in motor position, output closest feasible target as motor position.
-    long long getPanTarget( long long, long long );
-    long long getTiltTarget( long long, long long );
-    long long getCableTarget( long long );
+    long long int getPanTarget( long long int, long long int );
+    long long int getTiltTarget( long long int, long long int );
+    long long int getCableTarget( long long int );
 
     // Input current position, return position in [-1,1] range.
-    float getPanPosition( long long, bool * );
-    float getTiltPosition( long long, bool * );
-    float getCablePosition( long long, bool * );
+    float getPanPosition( long long int, bool * );
+    float getTiltPosition( long long int, bool * );
+    float getCablePosition( long long int, bool * );
 
 
 private:
     // Absolute max and mins.
-    long long pan_min;   // Found from initial position
-    long long pan_max;   // and input range.
+    long long int pan_min;   // Found from initial position
+    long long int pan_max;   // and input range.
 
-    long long tilt_min;   // Found from initial position
-    long long tilt_max;   // and input range.
+    long long int tilt_min;   // Found from initial position
+    long long int tilt_max;   // and input range.
 
-    long long cable_min;   // Found from initial position
-    long long cable_max;   // and input range.
+    long long int cable_min;   // Found from initial position
+    long long int cable_max;   // and input range.
 
     // Step functions for pan and tilt.
     // Cable is only restricted by max and min.
     // Hardcoded... this is very bad, yes.
-    long long pan_endpoint1, pan_endpoint2, pan_endpoint3;
-    long long tilt_endpoint1, tilt_endpoint2, tilt_endpoint3;
-    long long pan_range1_low, pan_range1_high, pan_range2_low, pan_range2_high;
-    long long tilt_range1_low, tilt_range1_high, tilt_range2_low, tilt_range2_high;
+    long long int pan_endpoint1, pan_endpoint2, pan_endpoint3;
+    long long int tilt_endpoint1, tilt_endpoint2, tilt_endpoint3;
+    long long int pan_range1_low, pan_range1_high, pan_range2_low, pan_range2_high;
+    long long int tilt_range1_low, tilt_range1_high, tilt_range2_low, tilt_range2_high;
 
     // If pan pos is between pan endpoints 1 and 2, tilt range 1 is allowed.
     // If pan pos is between pan endpoints 2 and 3, tilt range 2 is allowed.

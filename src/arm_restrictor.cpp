@@ -6,7 +6,7 @@
 
 using namespace std;
 
-ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long pan_init, long long tilt_init, long long cable_init )
+ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long int pan_init, long long int tilt_init, long long int cable_init )
 {
     // Initial positions as angle measures.
     double pan_initial, tilt_initial, cable_initial;
@@ -31,12 +31,12 @@ ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long pan_init, long long
     double motor_clicks_per_radian = 509.2958178;
 
     // Convert these max and mins to motor positions.
-    pan_min = pan_init - ( (long long)( (pan_maximum-pan_initial) * motor_clicks_per_radian * gear_ratio_non_tilt ) ); // These seem opposite because pan motor spins
-    pan_max = pan_init + ( (long long)( (pan_initial-pan_minimum) * motor_clicks_per_radian * gear_ratio_non_tilt ) ); // wrong way to make the angles match motor position
-    tilt_max = tilt_init + ( (long long)( (tilt_maximum-tilt_initial) * motor_clicks_per_radian * gear_ratio_tilt ) );
-    tilt_min = tilt_init - ( (long long)( (tilt_initial-tilt_minimum) * motor_clicks_per_radian * gear_ratio_tilt ) );
-    cable_max = cable_init + ( (long long)( (cable_maximum-cable_initial) * motor_clicks_per_radian * gear_ratio_non_tilt ) );
-    cable_min = cable_init - ( (long long)( (cable_initial-cable_minimum) * motor_clicks_per_radian * gear_ratio_non_tilt ) );   
+    pan_min = pan_init - ( (long long int)( (pan_maximum-pan_initial) * motor_clicks_per_radian * gear_ratio_non_tilt ) ); // These seem opposite because pan motor spins
+    pan_max = pan_init + ( (long long int)( (pan_initial-pan_minimum) * motor_clicks_per_radian * gear_ratio_non_tilt ) ); // wrong way to make the angles match motor position
+    tilt_max = tilt_init + ( (long long int)( (tilt_maximum-tilt_initial) * motor_clicks_per_radian * gear_ratio_tilt ) );
+    tilt_min = tilt_init - ( (long long int)( (tilt_initial-tilt_minimum) * motor_clicks_per_radian * gear_ratio_tilt ) );
+    cable_max = cable_init + ( (long long int)( (cable_maximum-cable_initial) * motor_clicks_per_radian * gear_ratio_non_tilt ) );
+    cable_min = cable_init - ( (long long int)( (cable_initial-cable_minimum) * motor_clicks_per_radian * gear_ratio_non_tilt ) );   
 
     // Code for debugging... has come in handy a few times.
     
@@ -66,11 +66,11 @@ ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long pan_init, long long
 
     // endpoints 1 and last are always min and max. The ones in between need to be calculated as shown below.
     pan_endpoint1 = pan_min; // max angle
-    pan_endpoint2 = pan_min + (long long)((pan_maximum - pan_endpt2) * motor_clicks_per_radian * gear_ratio_non_tilt);
+    pan_endpoint2 = pan_min + (long long int)((pan_maximum - pan_endpt2) * motor_clicks_per_radian * gear_ratio_non_tilt);
     pan_endpoint3 = pan_max; // min angle
 
     tilt_endpoint1 = tilt_min;
-    tilt_endpoint2 = tilt_min + (long long)((tilt_endpt2 - tilt_minimum) * motor_clicks_per_radian * gear_ratio_tilt);
+    tilt_endpoint2 = tilt_min + (long long int)((tilt_endpt2 - tilt_minimum) * motor_clicks_per_radian * gear_ratio_tilt);
     tilt_endpoint3 = tilt_max;
 
     pan_range1_low = pan_endpoint2;
@@ -85,12 +85,12 @@ ArmRestrictor::ArmRestrictor( ros::NodeHandle &nh, long long pan_init, long long
 }
 
 
-long long ArmRestrictor::getPanTarget( float pan_target, long long tilt_pos )
+long long int ArmRestrictor::getPanTarget( float pan_target, long long int tilt_pos )
 {
-    long long target = (long long)( (pan_target + 1.0)*(pan_max - pan_min)/2.0 + pan_min );
+    long long int target = (long long int)( (pan_target + 1.0)*(pan_max - pan_min)/2.0 + pan_min );
 
-    long long pan_maximum = pan_max;
-    long long pan_minimum = pan_min;
+    long long int pan_maximum = pan_max;
+    long long int pan_minimum = pan_min;
 
     /*
     // TODO: This range checking would also need to be changed in all of these functions..
@@ -116,12 +116,12 @@ long long ArmRestrictor::getPanTarget( float pan_target, long long tilt_pos )
     return target;
 }
 
-long long ArmRestrictor::getTiltTarget( float tilt_target, long long pan_pos )
+long long int ArmRestrictor::getTiltTarget( float tilt_target, long long int pan_pos )
 {
-    long long target = (long long)( (tilt_target + 1.0)*(tilt_max - tilt_min)/2.0 + tilt_min );
+    long long int target = (long long int)( (tilt_target + 1.0)*(tilt_max - tilt_min)/2.0 + tilt_min );
 
-    long long tilt_maximum = tilt_max;
-    long long tilt_minimum = tilt_min;
+    long long int tilt_maximum = tilt_max;
+    long long int tilt_minimum = tilt_min;
 
     /*
     // TODO: This range checking would also need to be changed in all of these functions..
@@ -145,9 +145,9 @@ long long ArmRestrictor::getTiltTarget( float tilt_target, long long pan_pos )
     return target;
 }
 
-long long ArmRestrictor::getCableTarget( float cable_target )
+long long int ArmRestrictor::getCableTarget( float cable_target )
 {
-    long long target = (long long)( (cable_target + 1.0)*(cable_max - cable_min)/2.0 + cable_min );
+    long long int target = (long long int)( (cable_target + 1.0)*(cable_max - cable_min)/2.0 + cable_min );
 
     // Check target against ranges.
     if (target > cable_max)
@@ -159,10 +159,10 @@ long long ArmRestrictor::getCableTarget( float cable_target )
     return target;
 }
 
-long long ArmRestrictor::getPanTarget( long long pan_target, long long tilt_pos )
+long long int ArmRestrictor::getPanTarget( long long int pan_target, long long int tilt_pos )
 {
-    long long pan_maximum = pan_max;
-    long long pan_minimum = pan_min;
+    long long int pan_maximum = pan_max;
+    long long int pan_minimum = pan_min;
 
     /*
 
@@ -187,10 +187,10 @@ long long ArmRestrictor::getPanTarget( long long pan_target, long long tilt_pos 
     return pan_target;
 }
 
-long long ArmRestrictor::getTiltTarget( long long tilt_target, long long pan_pos )
+long long int ArmRestrictor::getTiltTarget( long long int tilt_target, long long int pan_pos )
 {
-    long long tilt_maximum = tilt_max;
-    long long tilt_minimum = tilt_min;
+    long long int tilt_maximum = tilt_max;
+    long long int tilt_minimum = tilt_min;
 
     /*
 
@@ -215,7 +215,7 @@ long long ArmRestrictor::getTiltTarget( long long tilt_target, long long pan_pos
     return tilt_target;
 }
 
-long long ArmRestrictor::getCableTarget( long long cable_target )
+long long int ArmRestrictor::getCableTarget( long long int cable_target )
 {
     // Check target against ranges.
     if (cable_target > cable_max)
@@ -227,19 +227,19 @@ long long ArmRestrictor::getCableTarget( long long cable_target )
     return cable_target;
 }
 
-float ArmRestrictor::getPanPosition( long long pan_pos, bool *at_max )
+float ArmRestrictor::getPanPosition( long long int pan_pos, bool *at_max )
 {
     *at_max = (pan_pos == pan_max) || (pan_pos == pan_min);
     return ( (float)(pan_pos - pan_min)/(float)(pan_max - pan_min) ) * 2.0 - 1.0;
 }
 
-float ArmRestrictor::getTiltPosition( long long tilt_pos, bool *at_max )
+float ArmRestrictor::getTiltPosition( long long int tilt_pos, bool *at_max )
 {
     *at_max = (tilt_pos == tilt_max) || (tilt_pos == tilt_min);
     return ( (float)(tilt_pos - tilt_min)/(float)(tilt_max - tilt_min) ) * 2.0 - 1.0;
 }
 
-float ArmRestrictor::getCablePosition( long long cable_pos, bool *at_max )
+float ArmRestrictor::getCablePosition( long long int cable_pos, bool *at_max )
 {
     *at_max = (cable_pos == cable_max) || (cable_pos == cable_min);
     return ( (float)(cable_pos - cable_min)/(float)(cable_max - cable_min) ) * 2.0 - 1.0;

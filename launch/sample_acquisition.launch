@@ -1,25 +1,20 @@
 <launch>
 
     <!-- Parameters -->
-    <arg name="pan_motor_serial" value="322494"/> <!-- Motor controller's serial number -->
+    <arg name="tilt_motor_serial" default="322494"/>
+    <arg name="pan_motor_serial" default="322191"/>
+    <arg name="cable_motor_serial" default="322175"/>
+
     <arg name="pan_motor_safe_vel" value="3000.0"/> <!-- Vel used in position mode -->
     <arg name="pan_motor_max_vel" value="10000.0"/> <!-- Max vel allowed in velocity mode -->
-    <arg name="pan_motor_h_current" value="3.0"/> <!-- Holding current. Requires less power to hold position than to move. -->
-    <arg name="pan_motor_m_current" value="3.0"/> <!-- Moving current -->
     <param name="pan_motor_initial_angle" value="0.0"/> <!-- 0.0 --> <!-- Initial angle must be within range above -->
 
-    <arg name="tilt_motor_serial" value="322175"/> <!-- Motor controller's serial number -->
     <arg name="tilt_motor_safe_vel" value="3000.0"/> <!-- Vel used in position mode -->
     <arg name="tilt_motor_max_vel" value="10000.0"/> <!-- Max vel allowed in velocity mode -->
-    <arg name="tilt_motor_h_current" value="3.0"/> <!-- Holding current. Requires less power to hold position than to move. -->
-    <arg name="tilt_motor_m_current" value="3.0"/> <!-- Moving current -->
     <param name="tilt_motor_initial_angle" value="0.0"/> <!-- 0.0 --> <!-- Initial angle must be within range above -->
 
-    <arg name="cable_motor_serial" value="322191"/> <!-- Motor controller's serial number -->
     <arg name="cable_motor_safe_vel" value="3000.0"/> <!-- Vel used in position mode -->
     <arg name="cable_motor_max_vel" value="10000.0"/> <!-- Max vel allowed in velocity mode -->
-    <arg name="cable_motor_h_current" value="3.0"/> <!-- Holding current. Requires less power to hold position than to move. -->
-    <arg name="cable_motor_m_current" value="3.0"/> <!-- Moving current -->
     <param name="cable_motor_initial_angle" value="0.0"/> <!-- 0.0 --> <!-- Initial angle must be within range above -->
 
     <arg name="all_motors_accel" value="1000.0"/> <!-- Constant acceleration used by all motors. If set too high, motors will slip. -->
@@ -29,20 +24,13 @@
     <arg name="tilt_gear_ratio" value="9.0"/>
     <arg name="non_tilt_gear_ratio" value="3.0" />
 
-
     <!-- Phidgets node for each motor -->
     <include file="$(find sample_acquisition)/launch/steppers.launch">
         <arg name="pan_motor_serial" value="$(arg pan_motor_serial)"/>
-        <arg name="pan_motor_h_current" value="$(arg pan_motor_h_current)"/>
-        <arg name="pan_motor_m_current" value="$(arg pan_motor_m_current)"/>
 
         <arg name="tilt_motor_serial" value="$(arg tilt_motor_serial)"/>
-        <arg name="tilt_motor_h_current" value="$(arg tilt_motor_h_current)"/>
-        <arg name="tilt_motor_m_current" value="$(arg tilt_motor_m_current)"/>
 
         <arg name="cable_motor_serial" value="$(arg cable_motor_serial)"/>
-        <arg name="cable_motor_h_current" value="$(arg cable_motor_h_current)"/>
-        <arg name="cable_motor_m_current" value="$(arg cable_motor_m_current)"/>
     </include>
 
     <node pkg="sample_acquisition" type="sample_acquisition" name="sample_acquisition" output="screen">
@@ -65,5 +53,4 @@
         <param name="non_tilt_gear_ratio" value="$(arg non_tilt_gear_ratio)"/>
 	<param name="tilt_gear_ratio" value="$(arg tilt_gear_ratio)" />
     </node>    
-
 </launch>

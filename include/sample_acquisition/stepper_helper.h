@@ -27,10 +27,10 @@ public:
     void disengage();
 
     // getters
-    long long getPos();
+    long long int getPos();
 
 
-    void setTarget(long long f);
+    void setTarget(long long int f);
     void setVel(float f);
 
     // Velocity getters
@@ -38,10 +38,12 @@ public:
 
     float getAccel();
 
-    float getEngaged();
+    bool getEngaged();
 
     void usePositionVel();
     void useVelocityVel(float coeff);
+
+    bool isInitialized();
 
 private:
     // Indicates whether initialization has occured.
@@ -55,10 +57,10 @@ private:
     ros::Subscriber motor_sub;
 
     // Last position command to be output.
-    long long motor_target;
+    long long int motor_target;
 
     // Actual position of the motors.
-    long long motor_pos;
+    long long int motor_pos;
 
     // Last velocity command to be output.
     float motor_vel;

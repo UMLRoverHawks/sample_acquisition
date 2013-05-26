@@ -14,10 +14,7 @@ ArmDrive::ArmDrive( const ros::NodeHandle& nh, string pan_motor_serial, string t
                     float pan_motor_max_velocity, float tilt_motor_max_velocity, float cable_motor_max_velocity, float all_motors_acceleration) : 
     nnh(nh),
     vel_mode_time_step( vel_mode_time_step ),
-    all_motors_accel( all_motors_acceleration ),
-    pan_init( false ),
-    tilt_init( false ),
-    cable_init( false )/*,
+    all_motors_accel( all_motors_acceleration )/*,
     pan_at_max( false ),       //unused, undefined, un-uncommented
     tilt_at_max( false ),
     cable_at_max( false )*/
@@ -103,9 +100,9 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
         for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
           steppers[i]->useVelocityVel(input_vel[i]);
 
-        steppers[PAN_JOINT]->setTarget(restrictor->getPanTarget( ( (long long)(steppers[PAN_JOINT]->getVel()*vel_mode_time_step) ) + steppers[PAN_JOINT]->getPos(), steppers[TILT_JOINT]->getPos() ));
-        steppers[TILT_JOINT]->setTarget(restrictor->getTiltTarget( ( (long long)(steppers[TILT_JOINT]->getVel()*vel_mode_time_step) ) + steppers[TILT_JOINT]->getVel(), steppers[CABLE_JOINT]->getPos() ));
-        steppers[CABLE_JOINT]->setTarget(restrictor->getCableTarget( ( (long long)(steppers[CABLE_JOINT]->getVel()*vel_mode_time_step) ) + steppers[CABLE_JOINT]->getPos() ));
+        steppers[PAN_JOINT]->setTarget(restrictor->getPanTarget( ( (long long int)(steppers[PAN_JOINT]->getVel()*vel_mode_time_step) ) + steppers[PAN_JOINT]->getPos(), steppers[TILT_JOINT]->getPos() ));
+        steppers[TILT_JOINT]->setTarget(restrictor->getTiltTarget( ( (long long int)(steppers[TILT_JOINT]->getVel()*vel_mode_time_step) ) + steppers[TILT_JOINT]->getVel(), steppers[CABLE_JOINT]->getPos() ));
+        steppers[CABLE_JOINT]->setTarget(restrictor->getCableTarget( ( (long long int)(steppers[CABLE_JOINT]->getVel()*vel_mode_time_step) ) + steppers[CABLE_JOINT]->getPos() ));
 
         mode = string("velocity");
     }
@@ -119,7 +116,9 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
 bool ArmDrive::initializeMotors()
 {
     // Do this continually for 1.0 seconds at 10Hz... just to make sure the motors have initialized and reported their position.
-    if ( pan_init && tilt_init && cable_init ) {
+	for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
+	  if(!steppers[i]->isInitialized()) return false;
+
         steppers[PAN_JOINT]->setTarget(steppers[PAN_JOINT]->getPos());
         steppers[TILT_JOINT]->setTarget(steppers[TILT_JOINT]->getPos());
         steppers[CABLE_JOINT]->setTarget(steppers[CABLE_JOINT]->getPos());
@@ -130,9 +129,6 @@ bool ArmDrive::initializeMotors()
         restrictor = new ArmRestrictor( nnh, steppers[PAN_JOINT]->getPos(), steppers[TILT_JOINT]->getPos(), steppers[CABLE_JOINT]->getPos() );
 
         return true;
-    }
-    
-    return false;
 }
 
 string ArmDrive::getMode()
