@@ -38,7 +38,7 @@ void StepperHelper::setMotor( bool engaged )
 
     ROS_INFO("%s - Pos: %lld, target: %lld, vel: %d, accel: %d", desc.c_str(), motor_pos, motor_target, all_motors_accel, motor_vel);
 
-    motor_pub.publish(msg);
+    //motor_pub.publish(msg);
 }
 
 void StepperHelper::setTarget(long long target)
