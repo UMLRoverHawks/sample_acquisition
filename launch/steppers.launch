@@ -4,8 +4,8 @@
     <arg name="pan_motor_serial" default="322191"/>
     <arg name="cable_motor_serial" default="322175"/>
 
-    <arg name="pan_motor_h_current" default="1.0"/>
-    <arg name="pan_motor_m_current" default="1.0"/>
+    <arg name="pan_motor_h_current" default="2.5"/>
+    <arg name="pan_motor_m_current" default="2.5"/>
 
     <arg name="tilt_motor_h_current" default="2.5"/>
     <arg name="tilt_motor_m_current" default="2.5"/>
