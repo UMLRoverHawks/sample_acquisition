@@ -48,6 +48,8 @@ void StepperHelper::setMotor( bool engaged )
     msg.velocity = abs(motor_vel);
     msg.acceleration = all_motors_accel;
     msg.position = motor_target;
+    msg.reset_position = reset_position;
+    reset_position = false;
 
     ROS_INFO("%s - Pos: %lld, target: %lld, vel: %d, accel: %d", desc.c_str(), motor_pos, motor_target, all_motors_accel, motor_vel);
 
@@ -91,4 +93,9 @@ void StepperHelper::usePositionVel()
 void StepperHelper::useVelocityVel(float coeff)
 {
     setVel(motor_max_vel * coeff);
+}
+
+void StepperHelper::resetPosition()
+{
+	reset_position = true;
 }

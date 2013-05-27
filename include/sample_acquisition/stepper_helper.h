@@ -43,6 +43,8 @@ public:
     void usePositionVel();
     void useVelocityVel(float coeff);
 
+    void resetPosition();
+
     bool isInitialized();
 
 private:
@@ -73,6 +75,8 @@ private:
 
     // Acceleration to be used by all motors.
     float all_motors_accel;
+
+    bool reset_position;
 
     string desc;
 };

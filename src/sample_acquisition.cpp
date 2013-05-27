@@ -102,20 +102,20 @@ int main( int argc, char** argv)
     while(ros::ok()){
 
         // Output status update at 10Hz
-        if ( loop_count >= 10 ) {
+        /*if ( loop_count >= 10 ) {
             output_status(drive, arm_pub);
             loop_count = 0;
-        }
+        }*/
 
         ros::spinOnce();
         loop.sleep();
-        loop_count++;
+        //loop_count++;
     }
 
     return 0;
 }
 
-
+/*
 void output_status( ArmDrive &drive, ros::Publisher &arm_pub )
 {
     // Get all necessary data from the ArmDrive class.
@@ -163,3 +163,4 @@ void output_status( ArmDrive &drive, ros::Publisher &arm_pub )
     // Output the ROS message.
     arm_pub.publish( message );
 }
+*/

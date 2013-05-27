@@ -4,7 +4,6 @@
 
 #include "sample_acquisition/arm_drive.h"
 #include "sample_acquisition/stepper_helper.h"
-#include "sample_acquisition/arm_restrictor.h"
 #include <boost/bind.hpp>
 #include <cmath>
 
@@ -34,37 +33,11 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
     // Check to make sure values are correct. If not, either return or fix them.
     
     // If both or neither mode is set, do nothing.
-    if ( data->position && data->velocity )
-        return;
-    if ( !(data->position) && (!data->velocity) )
-        return;
-
-    // Put any position values outside of [-1,1] back into this range.
-    float input_pan_pos, input_tilt_pos, input_cable_pos;
-    input_pan_pos = data->pan_motor_position;
-    input_tilt_pos = data->tilt_motor_position;
-    input_cable_pos = data->cable_motor_position;
-
-    if ( input_pan_pos > 1.0 )
-        input_pan_pos = 1.0;
-    else if ( input_pan_pos < -1.0 )
-        input_pan_pos = -1.0;
-    
-    if ( input_tilt_pos > 1.0 )
-        input_tilt_pos = 1.0;
-    else if ( input_tilt_pos < -1.0 )
-        input_tilt_pos = -1.0;
-
-    if ( input_cable_pos > 1.0 )
-        input_cable_pos = 1.0;
-    else if ( input_cable_pos < -1.0 )
-        input_cable_pos = -1.0;
 
     // Put any velocity values outside of [-1,1] back into this range.
-    float input_pan_vel, input_tilt_vel, input_cable_vel;
+    float input_pan_vel, input_tilt_vel;
     input_pan_vel = data->pan_motor_velocity; // needs to be opposite since motor spins opposite of correct angle
     input_tilt_vel = data->tilt_motor_velocity;
-    input_cable_vel = data->cable_motor_velocity;
 
     if ( input_pan_vel > 1.0 )
         input_pan_vel = 1.0;
@@ -76,80 +49,31 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
     else if ( input_tilt_vel < -1.0 )
         input_tilt_vel = -1.0;
 
-    if ( input_cable_vel > 1.0 )
-        input_cable_vel = 1.0;
-    else if ( input_cable_vel < -1.0 )
-        input_cable_vel = -1.0;
+    float input_vel[3] = {10000, 20000, 10000};
 
-    float input_vel[3] = {input_pan_vel, input_tilt_vel, input_cable_vel};
-
-    // Update variables for position mode.
-    if ( data->position) {
-        steppers[PAN_JOINT]->setTarget(restrictor->getPanTarget(input_pan_pos, steppers[TILT_JOINT]->getPos()));
-        steppers[TILT_JOINT]->setTarget(restrictor->getTiltTarget(input_tilt_pos, steppers[CABLE_JOINT]->getPos()));
-        steppers[CABLE_JOINT]->setTarget(restrictor->getCableTarget(input_cable_pos));
-
-        for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
-          steppers[i]->usePositionVel();
-
-        mode = string("position");
-    }
-
-    // Update variables for velocity mode.
-    if ( data->velocity ) {
-        for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
-          steppers[i]->useVelocityVel(input_vel[i]);
-
-        steppers[PAN_JOINT]->setTarget(restrictor->getPanTarget( ( (long long int)(steppers[PAN_JOINT]->getVel()*vel_mode_time_step) ) + steppers[PAN_JOINT]->getPos(), steppers[TILT_JOINT]->getPos() ));
-        steppers[TILT_JOINT]->setTarget(restrictor->getTiltTarget( ( (long long int)(steppers[TILT_JOINT]->getVel()*vel_mode_time_step) ) + steppers[TILT_JOINT]->getVel(), steppers[CABLE_JOINT]->getPos() ));
-        steppers[CABLE_JOINT]->setTarget(restrictor->getCableTarget( ( (long long int)(steppers[CABLE_JOINT]->getVel()*vel_mode_time_step) ) + steppers[CABLE_JOINT]->getPos() ));
-
-        mode = string("velocity");
-    }
-
-    // Call the set functions that move the motors
     for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
-      steppers[i]->setMotor(true);
+    {
+    	steppers[i]->setVel(input_vel[i]);
+    }
+
+	steppers[PAN_JOINT]->setTarget(steppers[PAN_JOINT]->getPos() + 150 * input_pan_vel);
+	steppers[TILT_JOINT]->setTarget(steppers[TILT_JOINT]->getPos() + 375 * input_pan_vel);
+	steppers[PAN_JOINT]->setMotor(true);
+	steppers[TILT_JOINT]->setMotor(true);
+	if (data->gripper_open)
+	{
+		steppers[CABLE_JOINT]->setTarget(6000);
+		steppers[CABLE_JOINT]->setMotor(true);
+	}
+	else
+	{
+		steppers[CABLE_JOINT]->resetPosition();
+		steppers[CABLE_JOINT]->disengage();
+	}
 }
 
 // Engage == false && reset_position == true => Asks driver to report back current position without moving the motors.
 bool ArmDrive::initializeMotors()
 {
-    // Do this continually for 1.0 seconds at 10Hz... just to make sure the motors have initialized and reported their position.
-	for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
-	  if(!steppers[i]->isInitialized()) return false;
-
-        steppers[PAN_JOINT]->setTarget(steppers[PAN_JOINT]->getPos());
-        steppers[TILT_JOINT]->setTarget(steppers[TILT_JOINT]->getPos());
-        steppers[CABLE_JOINT]->setTarget(steppers[CABLE_JOINT]->getPos());
-
-        ROS_INFO("Initialization Phase. pan_pos: %lld, tilt_pos: %lld, cable_pos: %lld", steppers[PAN_JOINT]->getPos(), steppers[TILT_JOINT]->getPos(), steppers[CABLE_JOINT]->getPos());
-
-        // This must go here, because it requires initial motor positions to have been read.
-        restrictor = new ArmRestrictor( nnh, steppers[PAN_JOINT]->getPos(), steppers[TILT_JOINT]->getPos(), steppers[CABLE_JOINT]->getPos() );
-
-        return true;
-}
-
-string ArmDrive::getMode()
-{
-    return mode;
-}
-
-float ArmDrive::getPanPos( bool *at_max )
-{
-    // Use restrictor class to turn pan_motor_pos into float in range of [-1,1]
-    return restrictor->getPanPosition( steppers[PAN_JOINT]->getPos(), at_max );
-}
-
-float ArmDrive::getTiltPos( bool *at_max )
-{
-    // Use restrictor class to turn tilt_motor_pos into float in range of [-1,1]
-    return restrictor->getTiltPosition( steppers[TILT_JOINT]->getPos(), at_max );
-}
-
-float ArmDrive::getCablePos( bool *at_max )
-{
-    // Use restrictor class to turn cable_motor_pos into float in range of [-1,1]
-    return restrictor->getCablePosition( steppers[CABLE_JOINT]->getPos(), at_max );
+    return true;
 }

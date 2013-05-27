@@ -35,7 +35,7 @@ rosbuild_add_executable(keyboard_drive src/keyboard_drive.cpp)
 rosbuild_link_boost(keyboard_drive signals)
 
 # Sample acquisition node
-rosbuild_add_executable(sample_acquisition src/sample_acquisition.cpp src/arm_drive.cpp src/arm_restrictor.cpp src/stepper_helper.cpp)
+rosbuild_add_executable(sample_acquisition src/sample_acquisition.cpp src/arm_drive.cpp src/stepper_helper.cpp)
 rosbuild_link_boost(sample_acquisition signals)
 
 #target_link_libraries(example ${PROJECT_NAME})

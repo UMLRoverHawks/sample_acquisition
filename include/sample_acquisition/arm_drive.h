@@ -7,7 +7,6 @@
 
 #include "ros/ros.h"
 #include "phidgets/stepper_params.h"
-#include "sample_acquisition/arm_restrictor.h"
 #include "sample_acquisition/ArmMovement.h"
 #include "sample_acquisition/stepper_helper.h"
 
@@ -40,10 +39,6 @@ public:
 
     StepperHelper *steppers[3];
 
-    float getPanPos( bool *at_max );
-    float getTiltPos( bool *at_max );
-    float getCablePos( bool *at_max );
-
 private:
     // ROS data members.
     ros::NodeHandle nnh;
@@ -60,8 +55,5 @@ private:
 
     // Time step for velocity mode.
     float vel_mode_time_step;
-
-    // Data member used to restrict motion based on the yaml file.
-    ArmRestrictor* restrictor;
 };
 #endif

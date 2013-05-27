@@ -19,11 +19,6 @@ using namespace std;
 // ROS parameter. 
 double position_step;
 
-// Positions.
-float pan_pos = 0.0;
-float tilt_pos = 0.0;
-float cable_pos = 0.0; 
-
 // Helper functions for keyboard input.
 bool run( ros::Publisher & );
 void nonblock(bool state);
@@ -33,9 +28,6 @@ void shutdown(int signo);
 
 void statusCallback( const sample_acquisition::ArmMovementConstPtr &data )
 {
-    pan_pos = data->pan_motor_position;
-    tilt_pos = data->tilt_motor_position;
-    cable_pos = data->cable_motor_position;
 }
 
 int main( int argc, char** argv)
@@ -70,36 +62,39 @@ int main( int argc, char** argv)
 
 bool run( ros::Publisher &pub )
 {
+	static bool grip;
+	// Positions.
+	float pan_pos = 0.0;
+	float tilt_pos = 0.0;
+	float cable_pos = 0.0;
     char c = '\0';
     if(kbhit()){
         c = fgetc(stdin);
         switch(c){
         case 'a':
-            pan_pos += position_step;
+            pan_pos = 0.5;
             break;
         case 'd':
-            pan_pos -= position_step;
+            pan_pos = -0.5;
             break;
         case 'w':
-            tilt_pos += position_step;
+            tilt_pos = 0.5;
             break;
         case 's':
-            tilt_pos -= position_step;
+            tilt_pos = -0.5;
             break;
         case 'f':
-            cable_pos += position_step;
+            grip = true;
             break;
         case 'g':
-            cable_pos -= position_step;
+            grip = false;
             break;
         }
 
         sample_acquisition::ArmMovement msg;
-        msg.position = true;
-        msg.velocity = false;
-        msg.pan_motor_position = pan_pos;
-        msg.tilt_motor_position = tilt_pos;
-        msg.cable_motor_position = cable_pos;
+        msg.pan_motor_velocity = pan_pos;
+        msg.tilt_motor_velocity = tilt_pos;
+        msg.gripper_open = grip;
 
         pub.publish( msg );
     }
