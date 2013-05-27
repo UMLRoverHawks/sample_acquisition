@@ -8,7 +8,6 @@
 #include "ros/ros.h"
 #include "phidgets/stepper_params.h"
 #include "sample_acquisition/ArmMovement.h"
-#include "geometry_msgs/Twist.h"
 #include "sample_acquisition/stepper_helper.h"
 
 using namespace std;
@@ -30,7 +29,7 @@ public:
                 float pan_motor_max_velocity, float tilt_motor_max_velocity, float cable_motor_max_velocity, float all_motors_acceleration );
 
     // Callbacks
-    void movementCallback( const geometry_msgs::TwistConstPtr & );
+    void movementCallback( const sample_acquisition::ArmMovementConstPtr & );
 
     // Output to the driver
     bool initializeMotors();
