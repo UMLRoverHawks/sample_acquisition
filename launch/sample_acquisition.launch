@@ -47,7 +47,6 @@
 
         <param name="all_motors_accel" value="$(arg all_motors_accel)"/>
 
-        <param name="restrictor_file" value="$(arg restrictor_file)"/>
         <param name="velocity_mode_time_step" value="$(arg velocity_mode_time_step)"/>
         <param name="non_tilt_gear_ratio" value="$(arg non_tilt_gear_ratio)"/>
 	<param name="tilt_gear_ratio" value="$(arg tilt_gear_ratio)" />

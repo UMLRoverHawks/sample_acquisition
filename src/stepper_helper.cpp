@@ -97,5 +97,6 @@ void StepperHelper::useVelocityVel(float coeff)
 
 void StepperHelper::resetPosition()
 {
+	setTarget(0);
 	reset_position = true;
 }
