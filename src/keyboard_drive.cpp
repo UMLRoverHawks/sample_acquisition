@@ -92,8 +92,8 @@ bool run( ros::Publisher &pub )
         }
 
         sample_acquisition::ArmMovement msg;
-        msg.pan_motor_velocity = pan_pos;
-        msg.tilt_motor_velocity = tilt_pos;
+        msg.velocity.z = pan_pos;
+        msg.velocity.y = tilt_pos;
         msg.gripper_open = grip;
 
         pub.publish( msg );

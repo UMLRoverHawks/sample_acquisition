@@ -24,11 +24,11 @@ ArmDrive::ArmDrive( const ros::NodeHandle& nh, string pan_motor_serial, string t
   string descs[3] = {"pan", "tilt", "gripper"};
   for(int i=PAN_JOINT; i<=CABLE_JOINT; i++)
     steppers[i] = new StepperHelper(nnh, descs[i], serials[i], safes[i], maxes[i], all_motors_accel);
-  arm_movement_sub = nnh.subscribe<sample_acquisition::ArmMovement>("/arm/movement",10,boost::bind(&ArmDrive::movementCallback,this,_1));
+  arm_movement_sub = nnh.subscribe<geometry_msgs::Twist>("/arm/movement",10,boost::bind(&ArmDrive::movementCallback,this,_1));
 }
 
 
-void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& data )
+void ArmDrive::movementCallback( const geometry_msgs::TwistConstPtr& data )
 {
     // Check to make sure values are correct. If not, either return or fix them.
     
@@ -36,8 +36,8 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
 
     // Put any velocity values outside of [-1,1] back into this range.
     float input_pan_vel, input_tilt_vel;
-    input_pan_vel = data->pan_motor_velocity; // needs to be opposite since motor spins opposite of correct angle
-    input_tilt_vel = data->tilt_motor_velocity;
+    input_pan_vel = data->angular.z; // needs to be opposite since motor spins opposite of correct angle
+    input_tilt_vel = data->angular.y;
 
     if ( input_pan_vel > 1.0 )
         input_pan_vel = 1.0;
@@ -60,7 +60,7 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
 	steppers[TILT_JOINT]->setTarget(steppers[TILT_JOINT]->getPos() + 375 * input_tilt_vel);
 	steppers[PAN_JOINT]->setMotor(true);
 	steppers[TILT_JOINT]->setMotor(true);
-	if (data->gripper_open)
+	if (data->linear.x >= 0)
 	{
 		steppers[CABLE_JOINT]->setTarget(3000);
 		steppers[CABLE_JOINT]->setMotor(true);
