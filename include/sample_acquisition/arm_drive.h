@@ -9,6 +9,7 @@
 #include "phidgets/stepper_params.h"
 #include "sample_acquisition/ArmMovement.h"
 #include "sample_acquisition/stepper_helper.h"
+#include "std_msgs/Bool.h"
 
 using namespace std;
 
@@ -31,6 +32,9 @@ public:
     // Callbacks
     void movementCallback( const sample_acquisition::ArmMovementConstPtr & );
 
+   //Callback for the activation subscriber.
+    void activationCallback ( const std_msgs::Bool::ConstPtr& );
+
     // Output to the driver
     bool initializeMotors();
 
@@ -45,7 +49,11 @@ private:
 
     ros::Subscriber arm_movement_sub;
 
+    ros::Subscriber arm_activation_sub; //Boolean subscriber to /arm/on
+
     bool pan_init, tilt_init, cable_init;
+
+    bool arm_activated; //Boolean used to know wheter the motors should be activated or not, it is set by the activationCallback function, it is false at initialization
 
     // Acceleration to be used by all motors.
     float all_motors_accel;

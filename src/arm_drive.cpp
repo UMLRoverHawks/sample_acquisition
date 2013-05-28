@@ -4,6 +4,7 @@
 
 #include "sample_acquisition/arm_drive.h"
 #include "sample_acquisition/stepper_helper.h"
+#include "std_msgs/Bool.h"
 #include <boost/bind.hpp>
 #include <cmath>
 
@@ -22,9 +23,11 @@ ArmDrive::ArmDrive( const ros::NodeHandle& nh, string pan_motor_serial, string t
   float safes[3] = {pan_motor_safe_velocity, tilt_motor_safe_velocity, cable_motor_safe_velocity};
   float maxes[3] = {pan_motor_max_velocity, tilt_motor_max_velocity, cable_motor_max_velocity};
   string descs[3] = {"pan", "tilt", "gripper"};
+  arm_activated = false; //Initialize arm in deactivated form
   for(int i=PAN_JOINT; i<=CABLE_JOINT; i++)
     steppers[i] = new StepperHelper(nnh, descs[i], serials[i], safes[i], maxes[i], all_motors_accel);
   arm_movement_sub = nnh.subscribe<sample_acquisition::ArmMovement>("/arm/movement",10,boost::bind(&ArmDrive::movementCallback,this,_1));
+  arm_activation_sub = nnh.subscribe("/arm/on", 50, &ArmDrive::activationCallback, this);
 }
 
 
@@ -70,6 +73,18 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
 		steppers[CABLE_JOINT]->resetPosition();
 		steppers[CABLE_JOINT]->disengage();
 	}
+}
+
+void ArmDrive::activationCallback(const std_msgs::Bool::ConstPtr& msg)
+{
+    arm_activated = msg->data; //set arm_activated to received message
+    if(!arm_activated) //if arm_activated was just set to false
+    {
+	    for(int i=PAN_JOINT;i<=CABLE_JOINT;i++) //for every motor;
+	    {
+		    steppers[i]->disengage(); //Disengage
+	    }
+    }
 }
 
 // Engage == false && reset_position == true => Asks driver to report back current position without moving the motors.
