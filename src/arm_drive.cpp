@@ -95,3 +95,5 @@ bool ArmDrive::initializeMotors()
 {
     return true;
 }
+
+bool ArmDrive::isActive() { return arm_activated; }

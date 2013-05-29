@@ -43,6 +43,8 @@ public:
 
     StepperHelper *steppers[3];
 
+    bool isActive();
+
 private:
     // ROS data members.
     ros::NodeHandle nnh;
