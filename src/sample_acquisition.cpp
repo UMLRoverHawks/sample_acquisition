@@ -14,6 +14,7 @@
 #include "sample_acquisition/stepper_helper.h"
 #include "sample_acquisition/arm_drive.h"
 #include "sample_acquisition/ArmMovement.h"
+#include "sample_acquisition/ArmStatus.h"
 
 
 using namespace std;
@@ -80,7 +81,7 @@ int main( int argc, char** argv)
                     pan_motor_max_vel, tilt_motor_max_vel, cable_motor_max_vel, all_motors_accel);
 
     // Advertise status updates.
-    ros::Publisher arm_pub = nh.advertise<sample_acquisition::ArmMovement>("/arm/status",10);
+    ros::Publisher arm_pub = nh.advertise<sample_acquisition::ArmStatus>("/arm/status",10);
 
     // Initialization phase. This is a pretty messed up/hacky way to get this done.
     ros::Rate init_loop(10);
@@ -102,65 +103,30 @@ int main( int argc, char** argv)
     while(ros::ok()){
 
         // Output status update at 10Hz
-        /*if ( loop_count >= 10 ) {
+        if ( loop_count >= 10 ) {
             output_status(drive, arm_pub);
             loop_count = 0;
-        }*/
+        }
 
         ros::spinOnce();
         loop.sleep();
-        //loop_count++;
+        loop_count++;
     }
 
     return 0;
 }
 
-/*
+
 void output_status( ArmDrive &drive, ros::Publisher &arm_pub )
 {
-    // Get all necessary data from the ArmDrive class.
-    string mode = drive.getMode();
- 
-    bool pan_at_max, tilt_at_max, cable_at_max;
-
-    float pan_position = drive.getPanPos( &pan_at_max );
-    float pan_velocity = drive.steppers[PAN_JOINT]->getVel();
-    
-    float tilt_position = drive.getTiltPos( &tilt_at_max );
-    float tilt_velocity = drive.steppers[TILT_JOINT]->getVel();
-
-    float cable_position = drive.getCablePos( &cable_at_max );
-    float cable_velocity = drive.steppers[CABLE_JOINT]->getVel();
-
     // Put data into a ROS message.
-    sample_acquisition::ArmMovement message;
+    sample_acquisition::ArmStatus message;
     
-    if ( mode == "position" ) {
-        message.position = true;
-        message.velocity = false;
-    }
-    else if ( mode == "velocity" ) {
-        message.position = false;
-        message.velocity = true;
-    }
-    else {
-        message.position = false;
-        message.velocity = false;
-    }
-
-    message.pan_motor_position = pan_position;
-    message.pan_motor_velocity = pan_velocity;
-    message.pan_at_max = pan_at_max;
-
-    message.tilt_motor_position = tilt_position;
-    message.tilt_motor_velocity = tilt_velocity;
-    message.tilt_at_max = tilt_at_max;
-
-    message.cable_motor_position = cable_position;
-    message.cable_motor_velocity = cable_velocity;
-    message.cable_at_max = cable_at_max;
+    message.pan_position = drive.steppers[PAN_JOINT]->getPos();
+    message.tilt_position = drive.steppers[TILT_JOINT]->getPos();
+    message.cable_position = drive.steppers[CABLE_JOINT]->getPos();
+    message.engaged = drive.isActive();
 
     // Output the ROS message.
     arm_pub.publish( message );
 }
-*/
