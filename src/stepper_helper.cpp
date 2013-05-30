@@ -58,7 +58,7 @@ void StepperHelper::setMotor( bool engaged )
     msg.reset_position = reset_position;
     reset_position = false;
 
-    ROS_INFO("%s - Pos: %lld, target: %lld, vel: %d, accel: %d", desc.c_str(), motor_pos, motor_target, all_motors_accel, motor_vel);
+    //ROS_INFO("%s - Pos: %lld, target: %lld, vel: %d, accel: %d", desc.c_str(), motor_pos, motor_target, all_motors_accel, motor_vel);
 
     motor_pub.publish(msg);
 }
