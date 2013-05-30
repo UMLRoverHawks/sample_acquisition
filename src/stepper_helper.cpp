@@ -23,7 +23,6 @@ StepperHelper::StepperHelper( const ros::NodeHandle& nh, string description, str
     phidgets::stepper_params p;
     p.position = 0;
     p.reset_position = true;
-    motor_pub.publish(p);
 }
 
 bool StepperHelper::isInitialized()
@@ -42,6 +41,14 @@ void StepperHelper::callback( const phidgets::stepper_paramsConstPtr& data )
 
 void StepperHelper::setMotor( bool engaged )
 {
+    if (!initOnce)
+    {
+ phidgets::stepper_params p;
+    p.position = 0;
+    p.reset_position = true;
+	p.engage = true;
+	motor_pub.publish(p);
+    }	
     phidgets::stepper_params msg;
     
     msg.engage = engaged;

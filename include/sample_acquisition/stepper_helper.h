@@ -51,6 +51,8 @@ private:
     // Indicates whether initialization has occured.
     bool init;
 
+    bool initOnce;
+
     // ROS data members.
     ros::NodeHandle nnh;
 
