@@ -12,6 +12,8 @@
 #include <fcntl.h>
 
 #include "sample_acquisition/ArmMovement.h"
+#include "sample_acquisition/ArmStatus.h"
+#include "std_msgs/Bool.h"
 
 
 using namespace std;
@@ -26,10 +28,6 @@ int kbhit();
 void shutdown(int signo);
 
 
-void statusCallback( const sample_acquisition::ArmMovementConstPtr &data )
-{
-}
-
 int main( int argc, char** argv)
 {
 
@@ -43,8 +41,11 @@ int main( int argc, char** argv)
 
     pnh.getParam("position_step", position_step);
 
-    ros::Subscriber status_sub = nh.subscribe<sample_acquisition::ArmMovement>("/arm/status",10,statusCallback);
     ros::Publisher movement_pub = nh.advertise<sample_acquisition::ArmMovement>("/arm/movement",10);
+    ros::Publisher enabled_pub = nh.advertise<std_msgs::Bool>("/arm/on", 1, true);
+    std_msgs::Bool b;
+    b.data = true;
+    enabled_pub.publish(b);
 
     // Begin talking to the motors and taking keyboard commands
     ros::Rate loop_rate(100); // Loop at 100Hz
