@@ -54,15 +54,15 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
 	    else if ( input_tilt_vel < -1.0 )
 		input_tilt_vel = -1.0;
 
-	    float input_vel[3] = {20000, 20000, 10000};
+	    float input_vel[3] = {2000*input_pan_vel, 6000*input_tilt_vel, 10000};
 
 	    for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
 	    {
 		steppers[i]->setVel(input_vel[i]);
 	    }
 
-	     steppers[PAN_JOINT]->setTarget(steppers[PAN_JOINT]->getPos() + 200 * input_pan_vel);
-	     steppers[TILT_JOINT]->setTarget(steppers[TILT_JOINT]->getPos() + 600 * input_tilt_vel);
+	     steppers[PAN_JOINT]->setTarget(steppers[PAN_JOINT]->getPos() + 40000 * input_pan_vel);
+	     steppers[TILT_JOINT]->setTarget(steppers[TILT_JOINT]->getPos() + 40000 * input_tilt_vel);
 	     steppers[PAN_JOINT]->setMotor(true);
 	     steppers[TILT_JOINT]->setMotor(true);
 	     if (data->gripper_open)
