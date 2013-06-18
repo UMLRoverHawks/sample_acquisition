@@ -54,7 +54,7 @@ void ArmDrive::movementCallback( const sample_acquisition::ArmMovementConstPtr& 
 	    else if ( input_tilt_vel < -1.0 )
 		input_tilt_vel = -1.0;
 
-	    float input_vel[3] = {2000*input_pan_vel, 6000*input_tilt_vel, 10000};
+	    float input_vel[3] = {1000*input_pan_vel, 3000*input_tilt_vel, 10000};
 
 	    for(int i=PAN_JOINT;i<=CABLE_JOINT;i++)
 	    {

@@ -17,7 +17,7 @@
     <arg name="cable_motor_max_vel" value="10000.0"/> <!-- Max vel allowed in velocity mode -->
     <param name="cable_motor_initial_angle" value="0.0"/> <!-- 0.0 --> <!-- Initial angle must be within range above -->
 
-    <arg name="all_motors_accel" value="2000.0"/> <!-- Constant acceleration used by all motors. If set too high, motors will slip. -->
+    <arg name="all_motors_accel" value="40000.0"/> <!-- Constant acceleration used by all motors. If set too high, motors will slip. -->
 
     <arg name="velocity_mode_time_step" value="0.1"/>
     <arg name="tilt_gear_ratio" value="9.0"/>
